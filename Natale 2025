@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quiz Speciale – Regalo di Natale</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg1: #12092b;
+      --bg2: #311b92;
+      --accent: #e91e63;
+      --accent-soft: #f8bbd0;
+      --card-bg: rgba(10, 10, 30, 0.92);
+      --text-main: #ffffff;
+      --text-soft: #d1c4e9;
+      --button-bg: #7e57c2;
+      --button-bg-hover: #9575cd;
+      --correct: #2e7d32;
+      --wrong: #c62828;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #4527a0, #12092b 60%, #000000);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 800px;
+      background: var(--card-bg);
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      padding: 24px 20px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (min-width: 640px) {
+      .app {
+        padding: 32px 32px 36px;
+      }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    h1, h2 {
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      margin-bottom: 0.35em;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      color: var(--accent-soft);
+      margin-bottom: 12px;
+    }
+
+    p {
+      margin-bottom: 8px;
+      line-height: 1.5;
+      color: var(--text-soft);
+      font-size: 0.98rem;
+    }
+
+    .primary-btn, .answer-btn, .retry-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+      background: var(--button-bg);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.45);
+    }
+
+    .primary-btn:hover,
+    .answer-btn:hover,
+    .retry-btn:hover {
+      background: var(--button-bg-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.55);
+    }
+
+    .primary-btn:active,
+    .answer-btn:active,
+    .retry-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+
+    .primary-btn {
+      margin-top: 16px;
+    }
+
+    .intro-list {
+      margin-top: 8px;
+      margin-bottom: 4px;
+      padding-left: 18px;
+      color: var(--text-soft);
+      font-size: 0.95rem;
+    }
+
+    .intro-list li {
+      margin-bottom: 3px;
+    }
+
+    .footer-note {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: #b39ddb;
+    }
+
+    /* Quiz layout */
+    .question-header {
+      margin-bottom: 12px;
+    }
+
+    .question-counter {
+      font-size: 0.9rem;
+      color: #b39ddb;
+      margin-bottom: 4px;
+    }
+
+    .question-text {
+      font-size: 1.05rem;
+      margin-bottom: 12px;
+      color: #f5f5ff;
+    }
+
+    .answers-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 6px;
+      margin-bottom: 10px;
+    }
+
+    .answer-btn {
+      text-align: left;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      background: rgba(63, 81, 181, 0.28);
+      border-radius: 999px;
+      white-space: normal;
+      line-height: 1.3;
+      border: 1px solid transparent;
+    }
+
+    .answer-label {
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+
+    .answer-text {
+      flex: 1;
+      font-size: 0.95rem;
+    }
+
+    .answer-btn.correct {
+      background: rgba(46, 125, 50, 0.6);
+      border-color: rgba(129, 199, 132, 0.9);
+    }
+
+    .answer-btn.wrong {
+      background: rgba(198, 40, 40, 0.7);
+      border-color: rgba(255, 138, 128, 0.9);
+    }
+
+    .answer-btn.disabled {
+      pointer-events: none;
+      opacity: 0.95;
+    }
+
+    .progress-bar-wrapper {
+      margin-top: 8px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      height: 8px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff4081, #ffea00);
+      transition: width 0.3s ease-out;
+    }
+
+    .score-text {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: #c5cae9;
+    }
+
+    /* Result screen */
+    .result-message {
+      margin-top: 4px;
+      margin-bottom: 10px;
+    }
+
+    .prize-box {
+      margin-top: 10px;
+      padding: 10px 14px;
+      background: rgba(0,0,0,0.35);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.95rem;
+    }
+
+    .result-actions {
+      margin-top: 14px;
+    }
+
+    .retry-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.4);
+      box-shadow: none;
+    }
+
+    .retry-btn:hover {
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.5);
+    }
+
+    /* Dancing Santa & fireworks */
+    .celebration-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .santa-wrapper {
+      position: absolute;
+      bottom: 6px;
+      right: 14px;
+      font-size: 3.3rem;
+      animation: santa-dance 1.4s infinite ease-in-out;
+      filter: drop-shadow(0 0 8px rgba(0,0,0,0.7));
+    }
+
+    @media (max-width: 600px) {
+      .santa-wrapper {
+        font-size: 2.6rem;
+        right: 10px;
+      }
+    }
+
+    @keyframes santa-dance {
+      0%   { transform: translateY(0) rotate(-6deg); }
+      25%  { transform: translateY(-6px) rotate(4deg); }
+      50%  { transform: translateY(0) rotate(-2deg); }
+      75%  { transform: translateY(-4px) rotate(5deg); }
+      100% { transform: translateY(0) rotate(-6deg); }
+    }
+
+    .firework {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fff 0, #ffeb3b 40%, transparent 70%);
+      animation: fireworks 1.6s ease-out infinite;
+      opacity: 0;
+    }
+
+    .firework:nth-child(1) { left: 16%; top: 18%; animation-delay: 0s; }
+    .firework:nth-child(2) { left: 72%; top: 22%; animation-delay: 0.3s; }
+    .firework:nth-child(3) { left: 40%; top: 10%; animation-delay: 0.6s; }
+    .firework:nth-child(4) { left: 20%; top: 40%; animation-delay: 0.9s; }
+    .firework:nth-child(5) { left: 82%; top: 40%; animation-delay: 1.2s; }
+
+    @keyframes fireworks {
+      0% {
+        transform: scale(0.3);
+        opacity: 0;
+      }
+      30% {
+        transform: scale(1.4);
+        opacity: 1;
+      }
+      60% {
+        transform: scale(1.9);
+        opacity: 0.7;
+      }
+      100% {
+        transform: scale(2.2);
+        opacity: 0;
+      }
+    }
+
+    /* Small decorative stars in background */
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: #ffffff;
+      border-radius: 50%;
+      opacity: 0.4;
+      animation: twinkle 3s ease-in-out infinite alternate;
+    }
+
+    .star:nth-child(1) { top: 8%; left: 12%; animation-delay: 0.2s; }
+    .star:nth-child(2) { top: 16%; left: 64%; animation-delay: 0.8s; }
+    .star:nth-child(3) { top: 30%; left: 28%; animation-delay: 1.4s; }
+    .star:nth-child(4) { top: 4%; left: 82%; animation-delay: 1.8s; }
+    .star:nth-child(5) { top: 22%; left: 46%; animation-delay: 0.5s; }
+
+    @keyframes twinkle {
+      from { opacity: 0.3; transform: scale(1); }
+      to   { opacity: 0.9; transform: scale(1.4); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Decorative static stars -->
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+
+    <!-- INTRO SCREEN -->
+    <section id="intro-screen">
+      <h1>Quiz Speciale – Regalo di Natale</h1>
+      <h2>10 domande, un solo obiettivo: Scoprire il tuo regalo di Natale.<br>Sei pronta a giocare?</h2>
+
+      <p>Rispondi alle 10 domande a scelta multipla.</p>
+      <p>Ogni domanda ha una sola risposta corretta.</p>
+      <p>Niente pressioni… ma in palio c’è una serata davvero speciale. 💫</p>
+
+      <button class="primary-btn" id="start-btn">Inizia il quiz 💜</button>
+
+      <p class="footer-note">Suggerimento: segui l’istinto, non Google. 😉</p>
+    </section>
+
+    <!-- QUIZ SCREEN -->
+    <section id="quiz-screen" class="hidden">
+      <div class="question-header">
+        <div class="question-counter" id="question-counter"></div>
+        <div class="question-text" id="question-text"></div>
+      </div>
+
+      <div class="answers-grid" id="answers-container">
+        <!-- Bottoni risposta generati da JavaScript -->
+      </div>
+
+      <div class="progress-bar-wrapper">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <div class="score-text" id="score-text"></div>
+    </section>
+
+    <!-- RESULT SCREEN -->
+    <section id="result-screen" class="hidden">
+      <h1 id="result-title"></h1>
+      <p class="result-message" id="result-message"></p>
+      <div class="prize-box hidden" id="prize-box">
+        <p><strong>🎁 Premio:</strong><br>
+        Un soggiorno ad Andermatt presso il Raddison Blu e una cena presso il ristorante IGNIV dello chef Andreas Caminada.</p>
+        <p>Prepara la valigia, io penso al resto. 💜</p>
+      </div>
+
+      <div class="result-actions">
+        <button class="retry-btn" id="retry-btn">Riprova il quiz</button>
+      </div>
+    </section>
+
+    <!-- Celebration layer for win screen -->
+    <div class="celebration-layer hidden" id="celebration-layer">
+      <div class="firework"></div>
+      <div class="firework"></div>
+      <div class="firework"></div>
+      <div class="firework"></div>
+      <div class="firework"></div>
+      <div class="santa-wrapper">🎅</div>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        text: "In quale cantone svizzero si trova Andermatt?",
+        answers: ["Grigioni", "Uri", "Vallese", "Berna"],
+        correctIndex: 1
+      },
+      {
+        text: "Nota stazione sciistica nel canton Uri collegata sci ai piedi con Sedrun",
+        answers: ["Titlis", "Gemsstock", "Corvatsch", "Parsenn"],
+        correctIndex: 1
+      },
+      {
+        text: "Quale importante passo alpino si trova vicino ad Andermatt?",
+        answers: ["Stelvio", "Gottardo", "Grimsel", "Susten"],
+        correctIndex: 1
+      },
+      {
+        text: "Famosa guida gastronomica che assegna stelle ai ristoranti",
+        answers: ["Routard", "Gambero Rosso", "Michelin", "TripAdvisor"],
+        correctIndex: 2
+      },
+      {
+        text: "Quale guida gastronomica svizzera assegna punti anziché stelle?",
+        answers: ["Falstaff", "Gault&Millau", "Veronelli", "Osterie d’Italia"],
+        correctIndex: 1
+      },
+      {
+        text: "Cosa significa “Igniv” in retoromancio?",
+        answers: ["Nido", "Focolare", "Festa", "Famiglia"],
+        correctIndex: 0
+      },
+      {
+        text: "La filosofia dei ristoranti IGNIV si basa soprattutto su:",
+        answers: ["Cucina vegana", "Piatti XXL", "Condivisione delle portate", "Street food"],
+        correctIndex: 2
+      },
+      {
+        text: "Chef svizzero con il maggior numero di stelle Michelin",
+        answers: ["Anton Mosimann", "Heiko Nieder", "Andreas Caminada", "Peter Knogl"],
+        correctIndex: 2
+      },
+      {
+        text: "Qual è uno dei dolci iconici serviti spesso all’IGNIV?",
+        answers: ["Torta Foresta Nera", "Candy Store di piccoli dolci da condividere", "Crème brûlée classica", "Gaufres svizzere"],
+        correctIndex: 1
+      },
+      {
+        text: "Completa: A fine del quiz vinci…",
+        answers: ["Una fondue in baita", "Un massaggio spa generico", "Un soggiorno ad Andermatt e una cena all’IGNIV", "Un’escursione con le capre"],
+        correctIndex: 2
+      }
+    ];
+
+    const introScreen = document.getElementById("intro-screen");
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+
+    const startBtn = document.getElementById("start-btn");
+    const retryBtn = document.getElementById("retry-btn");
+
+    const questionCounterEl = document.getElementById("question-counter");
+    const questionTextEl = document.getElementById("question-text");
+    const answersContainer = document.getElementById("answers-container");
+    const progressBar = document.getElementById("progress-bar");
+    const scoreTextEl = document.getElementById("score-text");
+
+    const resultTitleEl = document.getElementById("result-title");
+    const resultMessageEl = document.getElementById("result-message");
+    const prizeBox = document.getElementById("prize-box");
+    const celebrationLayer = document.getElementById("celebration-layer");
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let acceptingAnswers = true;
+
+    function startQuiz() {
+      currentQuestionIndex = 0;
+      score = 0;
+      introScreen.classList.add("hidden");
+      resultScreen.classList.add("hidden");
+      celebrationLayer.classList.add("hidden");
+      prizeBox.classList.add("hidden");
+
+      quizScreen.classList.remove("hidden");
+      updateProgress();
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = questions[currentQuestionIndex];
+      questionCounterEl.textContent = `Domanda ${currentQuestionIndex + 1} di ${questions.length}`;
+      questionTextEl.textContent = q.text;
+      scoreTextEl.textContent = `Risposte corrette finora: ${score}`;
+
+      answersContainer.innerHTML = "";
+      const labels = ["A", "B", "C", "D"];
+
+      q.answers.forEach((answerText, index) => {
+        const btn = document.createElement("button");
+        btn.className = "answer-btn";
+        btn.dataset.index = index;
+
+        const labelSpan = document.createElement("span");
+        labelSpan.className = "answer-label";
+        labelSpan.textContent = labels[index];
+
+        const textSpan = document.createElement("span");
+        textSpan.className = "answer-text";
+        textSpan.textContent = answerText;
+
+        btn.appendChild(labelSpan);
+        btn.appendChild(textSpan);
+        btn.addEventListener("click", onAnswerClick);
+
+        answersContainer.appendChild(btn);
+      });
+
+      acceptingAnswers = true;
+    }
+
+    function onAnswerClick(event) {
+      if (!acceptingAnswers) return;
+      acceptingAnswers = false;
+
+      const selectedBtn = event.currentTarget;
+      const selectedIndex = parseInt(selectedBtn.dataset.index, 10);
+      const q = questions[currentQuestionIndex];
+
+      const buttons = Array.from(answersContainer.querySelectorAll(".answer-btn"));
+      buttons.forEach(btn => btn.classList.add("disabled"));
+
+      if (selectedIndex === q.correctIndex) {
+        score++;
+        selectedBtn.classList.add("correct");
+      } else {
+        selectedBtn.classList.add("wrong");
+        // evidenzio quella corretta
+        const correctBtn = buttons[q.correctIndex];
+        if (correctBtn) {
+          correctBtn.classList.remove("disabled");
+          correctBtn.classList.add("correct");
+        }
+      }
+
+      scoreTextEl.textContent = `Risposte corrette finora: ${score}`;
+
+      setTimeout(() => {
+        currentQuestionIndex++;
+        updateProgress();
+        if (currentQuestionIndex < questions.length) {
+          renderQuestion();
+        } else {
+          showResult();
+        }
+      }, 900);
+    }
+
+    function updateProgress() {
+      const progress = (currentQuestionIndex / questions.length) * 100;
+      progressBar.style.width = progress + "%";
+    }
+
+    function showResult() {
+      quizScreen.classList.add("hidden");
+      resultScreen.classList.remove("hidden");
+
+      const allCorrect = score === questions.length;
+
+      if (allCorrect) {
+        resultTitleEl.textContent = "Complimenti, hai vinto! ✨";
+        resultMessageEl.textContent =
+          "Hai risposto correttamente a tutte le domande. Direi che ti sei guadagnata il premio alla grande. 😉";
+        prizeBox.classList.remove("hidden");
+        celebrationLayer.classList.remove("hidden");
+      } else {
+        resultTitleEl.textContent = "Quasi, quasi… 🙈";
+        resultMessageEl.textContent =
+          "Non hai azzeccato tutte le risposte, ma sei andata alla grande! Ritenta il quiz e vedi se riesci a conquistare il premio. 🎯";
+        prizeBox.classList.add("hidden");
+        celebrationLayer.classList.add("hidden");
+      }
+    }
+
+    startBtn.addEventListener("click", startQuiz);
+    retryBtn.addEventListener("click", () => {
+      startQuiz();
+    });
+  </script>
+</body>
+</html>
