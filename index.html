@@ -167,24 +167,6 @@
     }
 
     /* Music toggle */
-    #music-toggle {
-      position: absolute;
-      top: 14px;
-      left: 14px;
-      background: rgba(255, 255, 255, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      padding: 6px 12px;
-      border-radius: 12px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      backdrop-filter: blur(6px);
-      color: #fffde7;
-      z-index: 3;
-    }
-
-    #music-toggle:hover {
-      background: rgba(255, 255, 255, 0.22);
-    }
 
     /* Garland / lights at the top */
     .garland {
@@ -706,18 +688,6 @@
         celebrationLayer.classList.add("hidden");
       }
     }
-
-    // music toggle
-    musicToggle.addEventListener("click", () => {
-      if (musicOn) {
-        music.pause();
-        musicToggle.textContent = "🔇 Musica";
-      } else {
-        music.play().catch(() => {});
-        musicToggle.textContent = "🔊 Musica";
-      }
-      musicOn = !musicOn;
-    });
 
     startBtn.addEventListener("click", startQuiz);
     retryBtn.addEventListener("click", () => {
