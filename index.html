@@ -413,14 +413,19 @@
   </style>
 </head>
 <body>
-  <!-- Background music -->
+  <!-- Background music: file locale nel repo -->
   <audio id="bg-music" loop>
-    <source src="https://cdn.pixabay.com/audio/2022/11/15/audio_3c5885bcc1.mp3" type="audio/mpeg">
+    <source src="musica-natale.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- Correct answer bells -->
+  <!-- Correct answer bells: file locale nel repo -->
   <audio id="correct-sound">
-    <source src="https://cdn.pixabay.com/audio/2022/12/13/audio_4d9fb8f3a0.mp3" type="audio/mpeg">
+    <source src="campanellini.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Wrong answer "capra": file locale nel repo -->
+  <audio id="wrong-sound">
+    <source src="capra.mp3" type="audio/mpeg">
   </audio>
 
   <!-- simple snowflakes -->
@@ -568,11 +573,17 @@
     const music = document.getElementById("bg-music");
     const musicToggle = document.getElementById("music-toggle");
     const correctSound = document.getElementById("correct-sound");
+    const wrongSound = document.getElementById("wrong-sound");
 
     let currentQuestionIndex = 0;
     let score = 0;
     let acceptingAnswers = true;
     let musicOn = true;
+
+    // volumi di base
+    music.volume = 0.5;
+    correctSound.volume = 0.9;
+    wrongSound.volume = 0.9;
 
     function startQuiz() {
       currentQuestionIndex = 0;
@@ -587,7 +598,7 @@
       scoreTextEl.textContent = `Risposte corrette finora: ${score}`;
       renderQuestion();
 
-      // Avvia musica (se attiva)
+      // Avvia musica (se attiva) dopo click utente
       if (musicOn) {
         music.play().catch(() => {});
       }
@@ -655,13 +666,16 @@
           }
         }, 900);
       } else {
-        // risposta sbagliata -> schermata quasi e si riparte
+        // risposta sbagliata -> suono "capra", schermata quasi e si riparte
         selectedBtn.classList.add("wrong");
         const correctBtn = buttons[q.correctIndex];
         if (correctBtn) {
           correctBtn.classList.remove("disabled");
           correctBtn.classList.add("correct");
         }
+
+        wrongSound.currentTime = 0;
+        wrongSound.play().catch(() => {});
 
         setTimeout(() => {
           showResult(false);
